@@ -152,9 +152,9 @@ class AutocompleteTextField extends Widget
 	public function generate()
 	{
 		// Inject autocompleter javascript
-		$GLOBALS['TL_JAVASCRIPT']['observer'] = 'system/modules/autocompletetextfield/html/Observer.js';
-		$GLOBALS['TL_JAVASCRIPT']['autocompleter'] = 'system/modules/autocompletetextfield/html/Autocompleter.js';
-		$GLOBALS['TL_CSS']['autocompleter'] = 'system/modules/autocompletetextfield/html/Autocompleter.css';
+		$GLOBALS['TL_JAVASCRIPT']['observer'] = 'system/modules/autocompletetextfield/assets/Observer.js';
+		$GLOBALS['TL_JAVASCRIPT']['autocompleter'] = 'system/modules/autocompletetextfield/assets/Autocompleter.js';
+		$GLOBALS['TL_CSS']['autocompleter'] = 'system/modules/autocompletetextfield/assets/Autocompleter.css';
 		
 		// Generate javascript code
 		$strTokens = sprintf("var ctrl_%s_tokens = ['%s'];", 
