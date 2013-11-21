@@ -26,13 +26,13 @@ Autocompleter.Base = new Class({
 		delay: 400,
 		observerOptions: {},
 		fxOptions: {},
-		onOver: $empty,
-		onSelect: $empty,
-		onSelection: $empty,
-		onShow: $empty,
-		onHide: $empty,
-		onBlur: $empty,
-		onFocus: $empty,
+		onOver: function(){},
+		onSelect: function(){},
+		onSelection: function(){},
+		onShow: function(){},
+		onHide: function(){},
+		onBlur: function(){},
+		onFocus: function(){},
 
 		autoSubmit: false,
 		overflow: false,
@@ -59,7 +59,7 @@ Autocompleter.Base = new Class({
 		this.element = $(element);
 		this.setOptions(options);
 		this.build();
-		this.observer = new Observer(this.element, this.prefetch.bind(this), $merge({
+		this.observer = new Observer(this.element, this.prefetch.bind(this), Object.merge({}, {
 			'delay': this.options.delay
 		}, this.options.observerOptions));
 		this.queryValue = null;
@@ -96,16 +96,20 @@ Autocompleter.Base = new Class({
 		if (!this.options.separator.test(this.options.separatorSplit)) {
 			this.options.separatorSplit = this.options.separator;
 		}
-		this.fx = (!this.options.fxOptions) ? null : new Fx.Tween(this.choices, $merge({
+		this.fx = (!this.options.fxOptions) ? null : new Fx.Tween(this.choices, Object.merge({}, {
 			'property': 'opacity',
 			'link': 'cancel',
 			'duration': 200
 		}, this.options.fxOptions)).addEvent('onStart', Chain.prototype.clearChain).set(0);
 		this.element.setProperty('autocomplete', 'off')
-			.addEvent((Browser.Engine.trident || Browser.Engine.webkit) ? 'keydown' : 'keypress', this.onCommand.bind(this))
+			.addEvent((Browser.ie || Browser.safari || Browser.chrome) ? 'keydown' : 'keypress', this.onCommand.bind(this))
 			.addEvent('click', this.onCommand.bind(this, [false]))
-			.addEvent('focus', this.toggleFocus.create({bind: this, arguments: true, delay: 100}))
-			.addEvent('blur', this.toggleFocus.create({bind: this, arguments: false, delay: 100}));
+			.addEvent('focus', function(e) {
+			    this.toggleFocus.delay(100, this, e);
+            }.bind(this))
+			.addEvent('blur', function(e) {
+			    this.toggleFocus.delay(100, this, e);
+            }.bind(this));
 	},
 
 	destroy: function() {
@@ -177,7 +181,7 @@ Autocompleter.Base = new Class({
 		var match = this.options.choicesMatch, first = this.choices.getFirst(match);
 		this.selected = this.selectedValue = null;
 		if (this.fix) {
-			if (Browser.Engine.trident)
+			if (Browser.ie)
 			{
 				var pos = this.element.getBoundingClientRect(), width = this.options.width || 'auto';
 			}
@@ -288,6 +292,7 @@ Autocompleter.Base = new Class({
 
 	choiceOver: function(choice, selection) {
 		if (!choice || choice == this.selected) return;
+		if (Object.prototype.toString.call(choice) === '[object Array]') choice = choice[0];
 		if (this.selected) this.selected.removeClass('autocompleter-selected');
 		this.selected = choice.addClass('autocompleter-selected');
 		this.fireEvent('onSelect', [this.element, this.selected, selection]);
@@ -377,8 +382,8 @@ Autocompleter.Ajax.Base = new Class({
 		postVar: 'value',
 		postData: {},
 		ajaxOptions: {},
-		onRequest: $empty,
-		onComplete: $empty
+		onRequest: function(){},
+		onComplete: function(){}
 	},
 
 	initialize: function(element, options) {
@@ -418,7 +423,7 @@ Autocompleter.Ajax.Json = new Class({
 
 	initialize: function(el, url, options) {
 		this.parent(el, options);
-		this.request = new Request.JSON($merge({
+		this.request = new Request.JSON(Object.merge({}, {
 			'url': url,
 			'link': 'cancel'
 		}, this.options.ajaxOptions)).addEvent('onComplete', this.queryResponse.bind(this));
@@ -437,7 +442,7 @@ Autocompleter.Ajax.Xhtml = new Class({
 
 	initialize: function(el, url, options) {
 		this.parent(el, options);
-		this.request = new Request.HTML($merge({
+		this.request = new Request.HTML(Object.merge({}, {
 			'url': url,
 			'link': 'cancel',
 			'update': this.choices
@@ -465,7 +470,7 @@ Autocompleter.Ajax.Xhtml = new Class({
 var OverlayFix = new Class({
 
 	initialize: function(el) {
-		if (Browser.Engine.trident) {
+		if (Browser.ie) {
 			this.element = $(el);
 			this.relative = this.element.getOffsetParent();
 			this.fix = new Element('iframe', {
@@ -487,7 +492,7 @@ var OverlayFix = new Class({
 			var coords = this.element.getCoordinates(this.relative);
 			delete coords.right;
 			delete coords.bottom;
-			this.fix.setStyles($extend(coords, {
+			this.fix.setStyles(Object.append(coords, {
 				'display': '',
 				'zIndex': (this.element.getStyle('zIndex') || 1) - 1
 			}));
@@ -514,7 +519,7 @@ Element.implement({
 	getOffsetParent: function() {
 		var body = this.getDocument().body;
 		if (this == body) return null;
-		if (!Browser.Engine.trident) return $(this.offsetParent);
+		if (!Browser.ie) return $(this.offsetParent);
 		var el = this;
 		while ((el = el.parentNode)){
 			if (el == body || Element.getComputedStyle(el, 'position') != 'static') return $(el);
@@ -523,7 +528,7 @@ Element.implement({
 	},
 
 	getCaretPosition: function() {
-		if (!Browser.Engine.trident) return this.selectionStart;
+		if (!Browser.ie) return this.selectionStart;
 		this.focus();
 		var work = document.selection.createRange();
 		var all = this.createTextRange();
@@ -532,7 +537,7 @@ Element.implement({
 	},
 
 	selectRange: function(start, end) {
-		if (Browser.Engine.trident) {
+		if (Browser.ie) {
 			var range = this.createTextRange();
 			range.collapse(true);
 			range.moveEnd('character', end);

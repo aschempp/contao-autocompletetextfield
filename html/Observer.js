@@ -44,7 +44,7 @@ var Observer = new Class({
 	},
 
 	clear: function() {
-		$clear(this.timeout || null);
+		clearTimeout(this.timeout || null);
 		return this;
 	}
 
