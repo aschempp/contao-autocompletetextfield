@@ -12,13 +12,16 @@
  *
  *
  * PHP version 5
- * @copyright  terminal42 gmbh 2008-2013
+ * @copyright  terminal42 gmbh 2013
  * @author     Andreas Schempp <andreas.schempp@terminal42.ch>
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
 
 /**
- * Form fields
+ * Register the classes
  */
-$GLOBALS['BE_FFL']['autocomplete'] = 'AutocompleteTextField';
+ClassLoader::addClasses(array
+(
+	'AutocompleteTextField' => 'system/modules/autocompletetextfield/AutocompleteTextField.php',
+));
